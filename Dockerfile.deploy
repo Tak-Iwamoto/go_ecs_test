@@ -1,0 +1,14 @@
+FROM golang:1.15-alpine as builder
+
+WORKDIR /app
+COPY . .
+
+RUN go get -d -v ./...
+RUN go install -v ./...
+
+RUN go build -o main .
+
+FROM alpine:3.13
+EXPOSE 8080
+COPY --from=builder /app/main .
+CMD [ "./main" ]

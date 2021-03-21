@@ -1,0 +1,11 @@
+version: '3'
+services:
+  ecs_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: go_ecs_test
+    ports:
+      - '8080:8080'
+    volumes:
+      - '.:/app'
