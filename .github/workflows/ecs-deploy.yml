@@ -19,7 +19,7 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ECS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_ECS_SECRET_ACCESS_KEY }}
-        aws-region: ap-northeast-2
+        aws-region: ap-northeast-1
 
     - name: Login to Amazon ECR
       id: login-ecr
@@ -29,10 +29,10 @@ jobs:
       id: build-image
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: ${{ secrets.AWS_ECR_REPO_NAME }}
+        ECR_REPOSITORY: go_ecs_test
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker build -f ./Dockerfile.deploy -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
@@ -41,7 +41,7 @@ jobs:
       uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
         task-definition: aws/task-definition.json
-        container-name: go_ecs_test
+        container-name: go_ecs_test_container
         image: ${{ steps.build-image.outputs.image }}
 
     - name: Deploy Amazon ECS task definition
